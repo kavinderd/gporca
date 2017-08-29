@@ -246,6 +246,9 @@ namespace gpopt
 
 			// return the column statistics meta data object for a given column of a table
 			const IMDColStats *Pmdcolstats(IMemoryPool *pmp, IMDId *pmdidRel, ULONG ulPos);
+		
+			// return the column statistics meta data object for a given column of a table
+			CDouble *Pmdcolwidth(IMemoryPool *pmp, IMDId *pmdidRel, ULONG ulPos);
 
 			// record histogram and width information for a given column of a table
 			void RecordColumnStats

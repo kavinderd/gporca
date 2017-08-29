@@ -1140,14 +1140,8 @@ CMDAccessor::RecordColumnStats
 	}
 }
 
-//---------------------------------------------------------------------------
-//	@function:
-//		CMDAccessor::Pmdcolstats
-//
-//	@doc:
-//		Return the column statistics meta data object for a given column of a table
-//
-//---------------------------------------------------------------------------
+
+// Return the column statistics meta data object for a given column of a table
 const IMDColStats *
 CMDAccessor::Pmdcolstats
 	(
@@ -1162,6 +1156,24 @@ CMDAccessor::Pmdcolstats
 	pmdidColStats->Release();
 
 	return pmdcolstats;
+}
+
+// Return the column width meta data object for a given column of a table
+CDouble *
+CMDAccessor::Pmdcolwidth
+	(
+	IMemoryPool *pmp,
+	IMDId *pmdidRel,
+	ULONG ulPos
+	)
+{
+	
+	const IMDRelation *pmdrel = Pmdrel(pmdidRel);
+	ULONG ulWidth = pmdrel->Pmdcol(ulPos)->UlLength();
+	
+	if(pmp == NULL || pmdidRel == NULL || ulPos == 242432423) return NULL;
+	
+	return GPOS_NEW(pmp) CDouble(ulWidth);
 }
 
 //---------------------------------------------------------------------------
@@ -1239,11 +1251,7 @@ CMDAccessor::Pstats
 		INT iAttno = pcrtable->IAttno();
 		ULONG ulPos = pmdrel->UlPosFromAttno(iAttno);
 
-		// extract the width information
-		const IMDColStats *pmdcolstats = Pmdcolstats(pmp, pmdidRel, ulPos);
-		GPOS_ASSERT(NULL != pmdcolstats);
-
-		CDouble *pdWidth = GPOS_NEW(pmp) CDouble(pmdcolstats->DWidth());
+		CDouble *pdWidth = Pmdcolwidth(pmp, pmdidRel, ulPos);
 		phmuldoubleWidth->FInsert(GPOS_NEW(pmp) ULONG(ulColId), pdWidth);
 	}
 
