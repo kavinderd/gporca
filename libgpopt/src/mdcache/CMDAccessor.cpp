@@ -1158,22 +1158,23 @@ CMDAccessor::Pmdcolstats
 	return pmdcolstats;
 }
 
-// Return the column width meta data object for a given column of a table
-CDouble *
-CMDAccessor::Pmdcolwidth
+// Return the column widths of a table with passed relation ID
+DrgPdouble *
+CMDAccessor::Pmdcolwidths
 	(
 	IMemoryPool *pmp,
-	IMDId *pmdidRel,
-	ULONG ulPos
+	IMDId *pmdidRel
 	)
 {
-	
 	const IMDRelation *pmdrel = Pmdrel(pmdidRel);
-	ULONG ulWidth = pmdrel->Pmdcol(ulPos)->UlLength();
-	
-	if(pmp == NULL || pmdidRel == NULL || ulPos == 242432423) return NULL;
-	
-	return GPOS_NEW(pmp) CDouble(ulWidth);
+	ULONG ulColumns = pmdrel->UlColumns();
+	DrgPdouble *pdrgpdoubleColWidths = GPOS_NEW(pmp) DrgPdouble(pmp);
+	for (ULONG ul = 0; ul < ulColumns; ul++)
+	{
+		ULONG ulWidth = pmdrel->Pmdcol(ul)->UlLength();
+		pdrgpdoubleColWidths->Append(GPOS_NEW(pmp) CDouble(ulWidth));
+	}
+	return pdrgpdoubleColWidths;
 }
 
 //---------------------------------------------------------------------------
@@ -1239,6 +1240,8 @@ CMDAccessor::Pstats
 
 	// extract column widths
 	CColRefSetIter crsiWidth(*pcrsWidth);
+	DrgPdouble *pdrgpdoubleColWidths = Pmdcolwidths(pmp, pmdidRel);
+	
 	while (crsiWidth.FAdvance())
 	{
 		CColRef *pcrWidth = crsiWidth.Pcr();
@@ -1251,8 +1254,7 @@ CMDAccessor::Pstats
 		INT iAttno = pcrtable->IAttno();
 		ULONG ulPos = pmdrel->UlPosFromAttno(iAttno);
 
-		CDouble *pdWidth = Pmdcolwidth(pmp, pmdidRel, ulPos);
-		phmuldoubleWidth->FInsert(GPOS_NEW(pmp) ULONG(ulColId), pdWidth);
+		phmuldoubleWidth->FInsert(GPOS_NEW(pmp) ULONG(ulColId), (*pdrgpdoubleColWidths)[ulPos]);
 	}
 
 	CDouble dRows = std::max(DOUBLE(1.0), pmdRelStats->DRows().DVal());

@@ -247,8 +247,8 @@ namespace gpopt
 			// return the column statistics meta data object for a given column of a table
 			const IMDColStats *Pmdcolstats(IMemoryPool *pmp, IMDId *pmdidRel, ULONG ulPos);
 		
-			// return the column statistics meta data object for a given column of a table
-			CDouble *Pmdcolwidth(IMemoryPool *pmp, IMDId *pmdidRel, ULONG ulPos);
+			// return the column widths for a relation given relation metadata ID
+			DrgPdouble *Pmdcolwidths(IMemoryPool *pmp, IMDId *pmdidRel);
 
 			// record histogram and width information for a given column of a table
 			void RecordColumnStats
